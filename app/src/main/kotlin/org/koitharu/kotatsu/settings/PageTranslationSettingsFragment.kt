@@ -20,21 +20,25 @@ class PageTranslationSettingsFragment :
 		addPreferencesFromResource(R.xml.pref_page_translation)
 		val settings = PageTranslationSettings(requireContext().applicationContext)
 		findPreference<ListPreference>(PageTranslationSettings.KEY_PROVIDER)?.run {
-			entries = arrayOf("ImageTranslate.AI", "Gemini")
+			entries = PROVIDER_TITLES
 			entryValues = PageTranslationProvider.entries.names()
 			setDefaultValueCompat(PageTranslationProvider.IMAGETRANSLATE.name)
 		}
 		findPreference<EditTextPreference>(PageTranslationSettings.KEY_MODEL)?.run {
 			if (text.isNullOrBlank()) {
-				text = PageTranslationSettings.defaultModel(settings.provider)
+				val defaultModel = PageTranslationSettings.defaultModel(settings.provider)
+				if (defaultModel.isNotEmpty()) {
+					text = defaultModel
+				}
 			}
 		}
 		// The default model differs per provider: clear the override when the provider changes.
 		findPreference<Preference>(PageTranslationSettings.KEY_PROVIDER)?.setOnPreferenceChangeListener { _, newValue ->
+			val provider = providerFromValue(newValue)
 			preferenceManager.sharedPreferences?.edit()
 				?.remove(PageTranslationSettings.KEY_MODEL)?.apply()
 			findPreference<EditTextPreference>(PageTranslationSettings.KEY_MODEL)?.text =
-				PageTranslationSettings.defaultModel(providerFromValue(newValue))
+				PageTranslationSettings.defaultModel(provider).takeIf { it.isNotEmpty() }
 			true
 		}
 	}
@@ -42,4 +46,15 @@ class PageTranslationSettingsFragment :
 	private fun providerFromValue(value: Any?): PageTranslationProvider =
 		PageTranslationProvider.entries.firstOrNull { it.name == value }
 			?: PageTranslationProvider.IMAGETRANSLATE
+
+	private companion object {
+
+		val PROVIDER_TITLES = arrayOf(
+			"ImageTranslate.AI",
+			"Gemini (Google AI Studio)",
+			"OpenRouter",
+			"OpenAI",
+			"manga-image-translator server",
+		)
+	}
 }

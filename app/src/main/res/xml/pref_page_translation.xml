@@ -17,6 +17,11 @@
 		app:useSimpleSummaryProvider="false" />
 
 	<EditTextPreference
+		android:key="page_translation_server_url"
+		android:summary="@string/page_translation_server_url_summary"
+		android:title="@string/page_translation_server_url" />
+
+	<EditTextPreference
 		android:defaultValue="uk"
 		android:key="page_translation_target_language"
 		android:summary="@string/page_translation_target_language_summary"

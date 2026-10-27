@@ -10,6 +10,9 @@ import javax.inject.Singleton
 enum class PageTranslationProvider {
 	IMAGETRANSLATE,
 	GEMINI,
+	OPENROUTER,
+	OPENAI,
+	MIT_SERVER,
 }
 
 @Singleton
@@ -42,15 +45,26 @@ class PageTranslationSettings @Inject constructor(
 
 	/**
 	 * Engine id: for IMAGETRANSLATE one of grok|gemini|deepseek|kimi|chatgpt|claude,
-	 * for GEMINI a Gemini image model name, e.g. gemini-2.5-flash-image.
+	 * for GEMINI a Gemini image model name, e.g. gemini-2.5-flash-image,
+	 * for OPENROUTER an image model slug, e.g. google/gemini-2.5-flash-image,
+	 * for OPENAI an images/edits model, e.g. gpt-image-1,
+	 * for MIT_SERVER unused.
 	 */
 	var model: String
 		get() = prefs.getString(KEY_MODEL, null).takeUnless { it.isNullOrBlank() }
 			?: defaultModel(provider)
 		set(value) = prefs.edit().putString(KEY_MODEL, value.trim()).apply()
 
+	/** Base URL of a manga-image-translator compatible server, used by [PageTranslationProvider.MIT_SERVER]. */
+	var serverUrl: String
+		get() = prefs.getString(KEY_SERVER_URL, null)?.trim()?.trimEnd('/').orEmpty()
+		set(value) = prefs.edit().putString(KEY_SERVER_URL, value.trim()).apply()
+
 	val isConfigured: Boolean
-		get() = apiKey.isNotEmpty()
+		get() = when (provider) {
+			PageTranslationProvider.MIT_SERVER -> serverUrl.isNotEmpty()
+			else -> apiKey.isNotEmpty()
+		}
 
 	companion object {
 
@@ -59,10 +73,14 @@ class PageTranslationSettings @Inject constructor(
 		const val KEY_TARGET_LANGUAGE = "page_translation_target_language"
 		const val KEY_SOURCE_LANGUAGE = "page_translation_source_language"
 		const val KEY_MODEL = "page_translation_model"
+		const val KEY_SERVER_URL = "page_translation_server_url"
 
 		fun defaultModel(provider: PageTranslationProvider) = when (provider) {
 			PageTranslationProvider.IMAGETRANSLATE -> "grok"
 			PageTranslationProvider.GEMINI -> "gemini-2.5-flash-image"
+			PageTranslationProvider.OPENROUTER -> "google/gemini-2.5-flash-image"
+			PageTranslationProvider.OPENAI -> "gpt-image-1"
+			PageTranslationProvider.MIT_SERVER -> ""
 		}
 	}
 }

@@ -27,6 +27,9 @@ class PageTranslationRepository @Inject constructor(
 		mapOf(
 			PageTranslationProvider.IMAGETRANSLATE to ImageTranslateAiProvider(okHttpClient),
 			PageTranslationProvider.GEMINI to GeminiProvider(okHttpClient),
+			PageTranslationProvider.OPENROUTER to OpenRouterImageProvider(okHttpClient),
+			PageTranslationProvider.OPENAI to OpenAiImageEditProvider(okHttpClient),
+			PageTranslationProvider.MIT_SERVER to MitServerProvider(okHttpClient),
 		)
 	}
 
