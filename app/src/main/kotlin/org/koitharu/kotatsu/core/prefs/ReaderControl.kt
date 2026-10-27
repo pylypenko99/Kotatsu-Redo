@@ -5,7 +5,7 @@ import java.util.EnumSet
 enum class ReaderControl {
 
 	PREV_CHAPTER, NEXT_CHAPTER, SLIDER, PAGES_SHEET, SCREEN_ROTATION, SAVE_PAGE, TIMER, BOOKMARK,
-	COMMENTS;
+	COMMENTS, PAGE_TRANSLATION;
 
 	companion object {
 
@@ -18,7 +18,7 @@ enum class ReaderControl {
 		 * back turns it on in the reader settings.
 		 */
 		val DEFAULT: Set<ReaderControl> = EnumSet.of(
-			PREV_CHAPTER, NEXT_CHAPTER, SLIDER, COMMENTS,
+			PREV_CHAPTER, NEXT_CHAPTER, SLIDER, COMMENTS, PAGE_TRANSLATION,
 		)
 	}
 }

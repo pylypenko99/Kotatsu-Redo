@@ -1174,4 +1174,18 @@ Optional — skip it and you appear as anon.</string>
 		<item quantity="one">%d new reply</item>
 		<item quantity="other">%d new replies</item>
 	</plurals>
+
+	<string name="translate_page">Translate page</string>
+	<string name="page_translation">Page translation</string>
+	<string name="page_translation_summary">Machine translation of manga pages via a cloud service</string>
+	<string name="page_translation_no_key">Set up a translation service API key in the reader settings first</string>
+	<string name="page_translation_provider">Provider</string>
+	<string name="page_translation_api_key">API key</string>
+	<string name="page_translation_api_key_summary">Key of the selected cloud service (stored only on this device)</string>
+	<string name="page_translation_target_language">Target language</string>
+	<string name="page_translation_target_language_summary">ISO 639-1 code of the language to translate pages into (e.g. uk)</string>
+	<string name="page_translation_source_language">Source language</string>
+	<string name="page_translation_source_language_summary">ISO 639-1 code or auto for detection</string>
+	<string name="page_translation_model">Model / translator</string>
+	<string name="page_translation_model_summary">grok, gemini, deepseek, kimi, chatgpt, claude for ImageTranslate.AI; a Gemini image model name (e.g. gemini-2.5-flash-image) for Gemini</string>
 </resources>

@@ -68,6 +68,7 @@ import org.koitharu.kotatsu.details.ui.pager.pages.PagesSavedObserver
 import org.koitharu.kotatsu.parsers.model.MangaChapter
 import org.koitharu.kotatsu.reader.data.TapGridSettings
 import org.koitharu.kotatsu.reader.domain.TapGridArea
+import org.koitharu.kotatsu.reader.translation.PageTranslationRepository
 import org.koitharu.kotatsu.reader.ui.config.ReaderConfigSheet
 import org.koitharu.kotatsu.reader.ui.pager.ReaderPage
 import org.koitharu.kotatsu.reader.ui.pager.ReaderUiState
@@ -105,6 +106,9 @@ class ReaderActivity :
 
     @Inject
     lateinit var screenOrientationHelper: ScreenOrientationHelper
+
+    @Inject
+    lateinit var pageTranslationRepository: PageTranslationRepository
 
     private val idlingDetector = IdlingDetector(TimeUnit.SECONDS.toMillis(10), this)
 
@@ -500,6 +504,17 @@ class ReaderActivity :
 
     override fun onSavePageClick() {
         viewModel.saveCurrentPage(pageSaveHelper)
+    }
+
+    override fun onTranslateClick() {
+        if (!pageTranslationRepository.isConfigured) {
+            Snackbar.make(viewBinding.container, R.string.page_translation_no_key, Snackbar.LENGTH_LONG)
+                .setAction(R.string.settings) { AppRouter.from(viewBinding.container)?.openReaderSettings() }
+                .setAnchorView(viewBinding.toolbarDocked)
+                .show()
+            return
+        }
+        readerManager.currentReader?.onTranslatePageClicked()
     }
 
     override fun onScrollTimerClick(isLongClick: Boolean) {

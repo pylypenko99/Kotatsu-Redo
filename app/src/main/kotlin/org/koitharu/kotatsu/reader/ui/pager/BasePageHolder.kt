@@ -5,6 +5,7 @@ import android.content.ComponentCallbacks2.TRIM_MEMORY_COMPLETE
 import android.content.Context
 import android.content.res.Configuration
 import android.view.View
+import android.widget.Toast
 import androidx.annotation.CallSuper
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
@@ -30,6 +31,7 @@ import org.koitharu.kotatsu.core.util.ext.observe
 import org.koitharu.kotatsu.databinding.LayoutPageInfoBinding
 import org.koitharu.kotatsu.parsers.util.ifZero
 import org.koitharu.kotatsu.reader.domain.PageLoader
+import org.koitharu.kotatsu.reader.translation.PageTranslationRepository
 import org.koitharu.kotatsu.reader.ui.config.ReaderSettings
 import org.koitharu.kotatsu.reader.ui.pager.vm.PageState
 import org.koitharu.kotatsu.reader.ui.pager.vm.PageViewModel
@@ -41,6 +43,7 @@ abstract class BasePageHolder<B : ViewBinding>(
 	readerSettingsProducer: ReaderSettings.Producer,
 	networkState: NetworkState,
 	exceptionResolver: ExceptionResolver,
+	translationRepository: PageTranslationRepository,
 	lifecycleOwner: LifecycleOwner,
 ) : LifecycleAwareViewHolder(binding.root, lifecycleOwner), DefaultOnImageEventListener, ComponentCallbacks2 {
 
@@ -49,6 +52,7 @@ abstract class BasePageHolder<B : ViewBinding>(
 		settingsProducer = readerSettingsProducer,
 		networkState = networkState,
 		exceptionResolver = exceptionResolver,
+		translationRepository = translationRepository,
 		isWebtoon = this is WebtoonHolder,
 	)
 	protected val bindingInfo = LayoutPageInfoBinding.bind(binding.root)
@@ -86,6 +90,15 @@ abstract class BasePageHolder<B : ViewBinding>(
 		}
 		bindingInfo.buttonRetry.setOnClickListener(clickListener)
 		bindingInfo.buttonErrorDetails.setOnClickListener(clickListener)
+		lifecycleScope.launch {
+			viewModel.translationError.collect { e ->
+				Toast.makeText(
+					context,
+					e.message ?: context.getString(R.string.error),
+					Toast.LENGTH_LONG,
+				).show()
+			}
+		}
 	}
 
 	@CallSuper
@@ -111,6 +124,12 @@ abstract class BasePageHolder<B : ViewBinding>(
 		animatedView?.disposeImage()
 		viewModel.onBind(data.toMangaPage())
 		onBind(data)
+	}
+
+	/** Toggles the page translation (original <-> translated). */
+	fun onTranslateToggle() {
+		val page = boundData?.toMangaPage() ?: return
+		viewModel.onTranslateToggle(page)
 	}
 
 	@CallSuper

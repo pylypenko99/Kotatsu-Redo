@@ -137,6 +137,7 @@
 		<item>@string/automatic_scroll</item>
 		<item>@string/bookmark_add</item>
 		<item>@string/community_comments</item>
+		<item>@string/translate_page</item>
 	</string-array>
 	<string-array name="list_badges" translatable="false">
 		<item>@string/favourites</item>

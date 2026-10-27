@@ -7,6 +7,7 @@ import org.koitharu.kotatsu.core.exceptions.resolve.ExceptionResolver
 import org.koitharu.kotatsu.core.os.NetworkState
 import org.koitharu.kotatsu.databinding.ItemPageWebtoonBinding
 import org.koitharu.kotatsu.reader.domain.PageLoader
+import org.koitharu.kotatsu.reader.translation.PageTranslationRepository
 import org.koitharu.kotatsu.reader.ui.config.ReaderSettings
 import org.koitharu.kotatsu.reader.ui.pager.BaseReaderAdapter
 
@@ -16,7 +17,8 @@ class WebtoonAdapter(
 	readerSettingsProducer: ReaderSettings.Producer,
 	networkState: NetworkState,
 	exceptionResolver: ExceptionResolver,
-) : BaseReaderAdapter<WebtoonHolder>(loader, readerSettingsProducer, networkState, exceptionResolver) {
+	translationRepository: PageTranslationRepository,
+) : BaseReaderAdapter<WebtoonHolder>(loader, readerSettingsProducer, networkState, exceptionResolver, translationRepository) {
 
 	override fun onCreateViewHolder(
 		parent: ViewGroup,
@@ -24,6 +26,7 @@ class WebtoonAdapter(
 		readerSettingsProducer: ReaderSettings.Producer,
 		networkState: NetworkState,
 		exceptionResolver: ExceptionResolver,
+		translationRepository: PageTranslationRepository,
 	) = WebtoonHolder(
 		owner = lifecycleOwner,
 		binding = ItemPageWebtoonBinding.inflate(
@@ -35,5 +38,6 @@ class WebtoonAdapter(
 		readerSettingsProducer = readerSettingsProducer,
 		networkState = networkState,
 		exceptionResolver = exceptionResolver,
+		translationRepository = translationRepository,
 	)
 }

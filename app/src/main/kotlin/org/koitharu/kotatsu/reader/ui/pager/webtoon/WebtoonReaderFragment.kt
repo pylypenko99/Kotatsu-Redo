@@ -24,7 +24,9 @@ import org.koitharu.kotatsu.core.util.ext.observe
 import org.koitharu.kotatsu.core.util.ext.removeItemDecoration
 import org.koitharu.kotatsu.databinding.FragmentReaderWebtoonBinding
 import org.koitharu.kotatsu.reader.domain.PageLoader
+import org.koitharu.kotatsu.reader.translation.PageTranslationRepository
 import org.koitharu.kotatsu.reader.ui.ReaderState
+import org.koitharu.kotatsu.reader.ui.pager.BasePageHolder
 import org.koitharu.kotatsu.reader.ui.pager.BaseReaderAdapter
 import org.koitharu.kotatsu.reader.ui.pager.BaseReaderFragment
 import org.koitharu.kotatsu.reader.ui.pager.ReaderPage
@@ -40,6 +42,9 @@ class WebtoonReaderFragment : BaseReaderFragment<FragmentReaderWebtoonBinding>()
 
 	@Inject
 	lateinit var pageLoader: PageLoader
+
+	@Inject
+	lateinit var pageTranslationRepository: PageTranslationRepository
 
 	private val scrollInterpolator = DecelerateInterpolator()
 
@@ -118,6 +123,7 @@ class WebtoonReaderFragment : BaseReaderFragment<FragmentReaderWebtoonBinding>()
 		readerSettingsProducer = viewModel.readerSettingsProducer,
 		networkState = networkState,
 		exceptionResolver = exceptionResolver,
+		translationRepository = pageTranslationRepository,
 	)
 
 	override fun onScrollChanged(
@@ -177,6 +183,13 @@ class WebtoonReaderFragment : BaseReaderFragment<FragmentReaderWebtoonBinding>()
 
 	override fun onZoomOut() {
 		viewBinding?.frame?.onZoomOut()
+	}
+
+	override fun onTranslatePageClicked() {
+		val recyclerView = viewBinding?.recyclerView ?: return
+		val position = recyclerView.findCurrentPagePosition()
+		if (position == -1) return
+		(recyclerView.findViewHolderForAdapterPosition(position) as? BasePageHolder<*>)?.onTranslateToggle()
 	}
 
 	override fun switchPageBy(delta: Int) {

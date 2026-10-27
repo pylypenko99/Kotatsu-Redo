@@ -245,4 +245,11 @@
 		android:title="@string/preload_pages"
 		app:useSimpleSummaryProvider="true" />
 
+	<Preference
+		android:icon="@drawable/ic_language"
+		android:key="page_translation_screen"
+		android:summary="@string/page_translation_summary"
+		android:title="@string/page_translation"
+		app:fragment="org.koitharu.kotatsu.settings.PageTranslationSettingsFragment" />
+
 </PreferenceScreen>

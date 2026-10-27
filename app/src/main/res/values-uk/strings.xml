@@ -917,4 +917,18 @@
     <string name="source_replacement_summary_sources">Джерел використано</string>
     <string name="source_replacement_summary_mix">Поєднання джерел</string>
     <string name="source_replacement_summary_source_item">%1$s · %2$d</string>
+
+    <string name="translate_page">Перекласти сторінку</string>
+    <string name="page_translation">Переклад сторінок</string>
+    <string name="page_translation_summary">Машинний переклад сторінок манґи через хмарний сервіс</string>
+    <string name="page_translation_no_key">Спочатку вкажіть API-ключ сервісу перекладу в налаштуваннях читання</string>
+    <string name="page_translation_provider">Провайдер</string>
+    <string name="page_translation_api_key">API-ключ</string>
+    <string name="page_translation_api_key_summary">Ключ обраного хмарного сервісу (зберігається лише на цьому пристрої)</string>
+    <string name="page_translation_target_language">Мова перекладу</string>
+    <string name="page_translation_target_language_summary">Код ISO 639-1 мови, якою перекладати сторінки (напр. uk)</string>
+    <string name="page_translation_source_language">Мова оригіналу</string>
+    <string name="page_translation_source_language_summary">Код ISO 639-1 або auto для автовизначення</string>
+    <string name="page_translation_model">Модель / перекладач</string>
+    <string name="page_translation_model_summary">grok, gemini, deepseek, kimi, chatgpt, claude для ImageTranslate.AI; назва image-моделі Gemini (напр. gemini-2.5-flash-image) для Gemini</string>
 </resources>

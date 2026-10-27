@@ -77,6 +77,9 @@ abstract class BaseReaderFragment<B : ViewBinding> : BaseFragment<B>(), ZoomCont
 
 	abstract fun getCurrentState(): ReaderState?
 
+	/** User pressed the "translate page" action in the reader actions bar. */
+	open fun onTranslatePageClicked() = Unit
+
 	protected abstract fun onCreateAdapter(): BaseReaderAdapter<*>
 
 	protected abstract suspend fun onPagesChanged(pages: List<ReaderPage>, pendingState: ReaderState?)

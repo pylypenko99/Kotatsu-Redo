@@ -7,6 +7,7 @@ import org.koitharu.kotatsu.core.exceptions.resolve.ExceptionResolver
 import org.koitharu.kotatsu.core.os.NetworkState
 import org.koitharu.kotatsu.databinding.ItemPageBinding
 import org.koitharu.kotatsu.reader.domain.PageLoader
+import org.koitharu.kotatsu.reader.translation.PageTranslationRepository
 import org.koitharu.kotatsu.reader.ui.config.ReaderSettings
 import org.koitharu.kotatsu.reader.ui.pager.BaseReaderAdapter
 
@@ -16,7 +17,8 @@ class DoublePagesAdapter(
 	readerSettingsProducer: ReaderSettings.Producer,
 	networkState: NetworkState,
 	exceptionResolver: ExceptionResolver,
-) : BaseReaderAdapter<DoublePageHolder>(loader, readerSettingsProducer, networkState, exceptionResolver) {
+	translationRepository: PageTranslationRepository,
+) : BaseReaderAdapter<DoublePageHolder>(loader, readerSettingsProducer, networkState, exceptionResolver, translationRepository) {
 
 	override fun onBindViewHolder(holder: DoublePageHolder, position: Int) {
 		val item = getItem(position)
@@ -33,6 +35,7 @@ class DoublePagesAdapter(
 		readerSettingsProducer: ReaderSettings.Producer,
 		networkState: NetworkState,
 		exceptionResolver: ExceptionResolver,
+		translationRepository: PageTranslationRepository,
 	) = DoublePageHolder(
 		owner = lifecycleOwner,
 		binding = ItemPageBinding.inflate(LayoutInflater.from(parent.context), parent, false),
@@ -40,5 +43,6 @@ class DoublePagesAdapter(
 		readerSettingsProducer = readerSettingsProducer,
 		networkState = networkState,
 		exceptionResolver = exceptionResolver,
+		translationRepository = translationRepository,
 	)
 }

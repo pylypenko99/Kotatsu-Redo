@@ -18,7 +18,9 @@ import org.koitharu.kotatsu.core.ui.list.lifecycle.RecyclerViewLifecycleDispatch
 import org.koitharu.kotatsu.core.util.ext.firstVisibleItemPosition
 import org.koitharu.kotatsu.databinding.FragmentReaderDoubleBinding
 import org.koitharu.kotatsu.reader.domain.PageLoader
+import org.koitharu.kotatsu.reader.translation.PageTranslationRepository
 import org.koitharu.kotatsu.reader.ui.ReaderState
+import org.koitharu.kotatsu.reader.ui.pager.BasePageHolder
 import org.koitharu.kotatsu.reader.ui.pager.BaseReaderAdapter
 import org.koitharu.kotatsu.reader.ui.pager.BaseReaderFragment
 import org.koitharu.kotatsu.reader.ui.pager.ReaderPage
@@ -33,6 +35,9 @@ open class DoubleReaderFragment : BaseReaderFragment<FragmentReaderDoubleBinding
 
 	@Inject
 	lateinit var pageLoader: PageLoader
+
+	@Inject
+	lateinit var pageTranslationRepository: PageTranslationRepository
 
 	@Inject
 	lateinit var settings: AppSettings
@@ -124,6 +129,7 @@ open class DoubleReaderFragment : BaseReaderFragment<FragmentReaderDoubleBinding
 		readerSettingsProducer = viewModel.readerSettingsProducer,
 		networkState = networkState,
 		exceptionResolver = exceptionResolver,
+		translationRepository = pageTranslationRepository,
 	)
 
 	override fun onZoomIn() {
@@ -132,6 +138,11 @@ open class DoubleReaderFragment : BaseReaderFragment<FragmentReaderDoubleBinding
 
 	override fun onZoomOut() {
 		viewBinding?.frame?.onZoomOut()
+	}
+
+	override fun onTranslatePageClicked() {
+		val rv = viewBinding?.recyclerView ?: return
+		(rv.findViewHolderForAdapterPosition(getCurrentItem()) as? BasePageHolder<*>)?.onTranslateToggle()
 	}
 
 	override fun switchPageBy(delta: Int) {

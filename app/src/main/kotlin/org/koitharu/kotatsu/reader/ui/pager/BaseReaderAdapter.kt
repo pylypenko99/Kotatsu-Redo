@@ -8,6 +8,7 @@ import org.koitharu.kotatsu.core.exceptions.resolve.ExceptionResolver
 import org.koitharu.kotatsu.core.os.NetworkState
 import org.koitharu.kotatsu.core.util.ext.resetTransformations
 import org.koitharu.kotatsu.reader.domain.PageLoader
+import org.koitharu.kotatsu.reader.translation.PageTranslationRepository
 import org.koitharu.kotatsu.reader.ui.config.ReaderSettings
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -18,6 +19,7 @@ abstract class BaseReaderAdapter<H : BasePageHolder<*>>(
 	private val readerSettingsProducer: ReaderSettings.Producer,
 	private val networkState: NetworkState,
 	private val exceptionResolver: ExceptionResolver,
+	private val translationRepository: PageTranslationRepository,
 ) : RecyclerView.Adapter<H>() {
 
 	private val differ = AsyncListDiffer(this, DiffCallback())
@@ -58,7 +60,7 @@ abstract class BaseReaderAdapter<H : BasePageHolder<*>>(
 	final override fun onCreateViewHolder(
 		parent: ViewGroup,
 		viewType: Int,
-	): H = onCreateViewHolder(parent, loader, readerSettingsProducer, networkState, exceptionResolver)
+	): H = onCreateViewHolder(parent, loader, readerSettingsProducer, networkState, exceptionResolver, translationRepository)
 
 	suspend fun setItems(items: List<ReaderPage>) = suspendCoroutine { cont ->
 		differ.submitList(items) {
@@ -72,6 +74,7 @@ abstract class BaseReaderAdapter<H : BasePageHolder<*>>(
 		readerSettingsProducer: ReaderSettings.Producer,
 		networkState: NetworkState,
 		exceptionResolver: ExceptionResolver,
+		translationRepository: PageTranslationRepository,
 	): H
 
 	private class DiffCallback : DiffUtil.ItemCallback<ReaderPage>() {

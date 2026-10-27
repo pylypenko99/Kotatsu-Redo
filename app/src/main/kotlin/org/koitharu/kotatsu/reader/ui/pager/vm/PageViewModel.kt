@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.MutableSharedFlow
 import okio.IOException
 import org.koitharu.kotatsu.core.exceptions.resolve.ExceptionResolver
 import org.koitharu.kotatsu.core.os.NetworkState
@@ -26,6 +27,7 @@ import org.koitharu.kotatsu.core.util.ext.printStackTraceDebug
 import org.koitharu.kotatsu.core.util.ext.throttle
 import org.koitharu.kotatsu.parsers.model.MangaPage
 import org.koitharu.kotatsu.reader.domain.PageLoader
+import org.koitharu.kotatsu.reader.translation.PageTranslationRepository
 import org.koitharu.kotatsu.reader.ui.config.ReaderSettings
 
 class PageViewModel(
@@ -33,14 +35,19 @@ class PageViewModel(
 	val settingsProducer: ReaderSettings.Producer,
 	private val networkState: NetworkState,
 	private val exceptionResolver: ExceptionResolver,
+	private val translationRepository: PageTranslationRepository,
 	private val isWebtoon: Boolean,
 ) : DefaultOnImageEventListener {
 
 	private val scope = loader.loaderScope + Dispatchers.Main.immediate
 	private var job: Job? = null
+	private var translationJob: Job? = null
 	private var cachedBounds: Rect? = null
+	private var originalUri: Uri? = null
+	private var translatedUri: Uri? = null
 
 	val state = MutableStateFlow<PageState>(PageState.Empty)
+	val translationError = MutableSharedFlow<Throwable>(extraBufferCapacity = 1)
 
 	fun isLoading() = job?.isActive == true
 
@@ -73,9 +80,54 @@ class PageViewModel(
 		exceptionResolver.showErrorDetails(e, url)
 	}
 
+	/**
+	 * Toggles between the original page and its (cached or newly requested) translation.
+	 * Tap while translating cancels the request.
+	 */
+	fun onTranslateToggle(page: MangaPage) {
+		val activeJob = translationJob
+		if (activeJob?.isActive == true) {
+			activeJob.cancel()
+			return
+		}
+		val original = originalUri ?: return
+		val current = state.value
+		val currentSource = when (current) {
+			is PageState.Loaded -> current.source
+			is PageState.Shown -> current.source
+			else -> null
+		}
+		if (translatedUri != null) {
+			val shownUri = (currentSource as? ImageSource.Uri)?.uri
+			if (shownUri == translatedUri) {
+				// currently showing the translation -> back to the original
+				state.value = PageState.Loaded(original.toImageSource(cachedBounds), isConverted = false)
+				return
+			}
+		}
+		translationJob = scope.launch(Dispatchers.Default) {
+			try {
+				state.value = PageState.Converting()
+				val newUri = translationRepository.translate(page, original)
+				translatedUri = newUri
+				state.value = PageState.Loaded(newUri.toImageSource(null), isConverted = false)
+			} catch (ce: CancellationException) {
+				state.value = PageState.Loaded(original.toImageSource(cachedBounds), isConverted = false)
+				throw ce
+			} catch (e: Throwable) {
+				e.printStackTraceDebug()
+				translationError.tryEmit(e)
+				state.value = PageState.Loaded(original.toImageSource(cachedBounds), isConverted = false)
+			}
+		}
+	}
+
 	fun onRecycle() {
 		state.value = PageState.Empty
 		cachedBounds = null
+		originalUri = null
+		translatedUri = null
+		translationJob?.cancel()
 		job?.cancel()
 	}
 
@@ -150,7 +202,16 @@ class PageViewModel(
 			} else {
 				null
 			}
-			state.value = PageState.Loaded(uri.toImageSource(cachedBounds), isConverted = false)
+			originalUri = uri
+			// automatically show a previously requested translation for this page, if any
+			val cachedTranslation = translationRepository.getCachedTranslation(data)
+			if (cachedTranslation != null) {
+				translatedUri = cachedTranslation
+				state.value = PageState.Loaded(cachedTranslation.toImageSource(null), isConverted = false)
+			} else {
+				translatedUri = null
+				state.value = PageState.Loaded(uri.toImageSource(cachedBounds), isConverted = false)
+			}
 		} catch (e: CancellationException) {
 			throw e
 		} catch (e: Throwable) {

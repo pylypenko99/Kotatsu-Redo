@@ -6,6 +6,7 @@ import org.koitharu.kotatsu.core.exceptions.resolve.ExceptionResolver
 import org.koitharu.kotatsu.core.os.NetworkState
 import org.koitharu.kotatsu.databinding.ItemPageWebtoonBinding
 import org.koitharu.kotatsu.reader.domain.PageLoader
+import org.koitharu.kotatsu.reader.translation.PageTranslationRepository
 import org.koitharu.kotatsu.reader.ui.config.ReaderSettings
 import org.koitharu.kotatsu.reader.ui.pager.BasePageHolder
 
@@ -16,12 +17,14 @@ class WebtoonHolder(
 	readerSettingsProducer: ReaderSettings.Producer,
 	networkState: NetworkState,
 	exceptionResolver: ExceptionResolver,
+	translationRepository: PageTranslationRepository,
 ) : BasePageHolder<ItemPageWebtoonBinding>(
 	binding = binding,
 	loader = loader,
 	readerSettingsProducer = readerSettingsProducer,
 	networkState = networkState,
 	exceptionResolver = exceptionResolver,
+	translationRepository = translationRepository,
 	lifecycleOwner = owner,
 ) {
 

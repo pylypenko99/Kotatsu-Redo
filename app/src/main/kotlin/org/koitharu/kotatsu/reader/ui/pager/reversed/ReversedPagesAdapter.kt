@@ -7,6 +7,7 @@ import org.koitharu.kotatsu.core.exceptions.resolve.ExceptionResolver
 import org.koitharu.kotatsu.core.os.NetworkState
 import org.koitharu.kotatsu.databinding.ItemPageBinding
 import org.koitharu.kotatsu.reader.domain.PageLoader
+import org.koitharu.kotatsu.reader.translation.PageTranslationRepository
 import org.koitharu.kotatsu.reader.ui.config.ReaderSettings
 import org.koitharu.kotatsu.reader.ui.pager.BaseReaderAdapter
 
@@ -16,7 +17,8 @@ class ReversedPagesAdapter(
 	readerSettingsProducer: ReaderSettings.Producer,
 	networkState: NetworkState,
 	exceptionResolver: ExceptionResolver,
-) : BaseReaderAdapter<ReversedPageHolder>(loader, readerSettingsProducer, networkState, exceptionResolver) {
+	translationRepository: PageTranslationRepository,
+) : BaseReaderAdapter<ReversedPageHolder>(loader, readerSettingsProducer, networkState, exceptionResolver, translationRepository) {
 
 	override fun onCreateViewHolder(
 		parent: ViewGroup,
@@ -24,6 +26,7 @@ class ReversedPagesAdapter(
 		readerSettingsProducer: ReaderSettings.Producer,
 		networkState: NetworkState,
 		exceptionResolver: ExceptionResolver,
+		translationRepository: PageTranslationRepository,
 	) = ReversedPageHolder(
 		owner = lifecycleOwner,
 		binding = ItemPageBinding.inflate(LayoutInflater.from(parent.context), parent, false),
@@ -31,5 +34,6 @@ class ReversedPagesAdapter(
 		readerSettingsProducer = readerSettingsProducer,
 		networkState = networkState,
 		exceptionResolver = exceptionResolver,
+		translationRepository = translationRepository,
 	)
 }
