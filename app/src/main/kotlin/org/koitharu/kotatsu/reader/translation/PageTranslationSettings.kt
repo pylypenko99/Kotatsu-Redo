@@ -51,8 +51,15 @@ class PageTranslationSettings @Inject constructor(
 	 * for MIT_SERVER unused.
 	 */
 	var model: String
-		get() = prefs.getString(KEY_MODEL, null).takeUnless { it.isNullOrBlank() }
-			?: defaultModel(provider)
+		get() {
+			val stored = prefs.getString(KEY_MODEL, null)?.takeUnless { it.isNullOrBlank() }
+				?: return defaultModel(provider)
+			// legacy slug renamed upstream; treat it as unset for OpenRouter
+			if (provider == PageTranslationProvider.OPENROUTER && stored == LEGACY_OPENROUTER_MODEL) {
+				return defaultModel(provider)
+			}
+			return stored
+		}
 		set(value) = prefs.edit().putString(KEY_MODEL, value.trim()).apply()
 
 	/** Base URL of a manga-image-translator compatible server, used by [PageTranslationProvider.MIT_SERVER]. */
@@ -74,11 +81,12 @@ class PageTranslationSettings @Inject constructor(
 		const val KEY_SOURCE_LANGUAGE = "page_translation_source_language"
 		const val KEY_MODEL = "page_translation_model"
 		const val KEY_SERVER_URL = "page_translation_server_url"
+		const val LEGACY_OPENROUTER_MODEL = "google/gemini-2.5-flash-image"
 
 		fun defaultModel(provider: PageTranslationProvider) = when (provider) {
 			PageTranslationProvider.IMAGETRANSLATE -> "grok"
 			PageTranslationProvider.GEMINI -> "gemini-2.5-flash-image"
-			PageTranslationProvider.OPENROUTER -> "google/gemini-2.5-flash-image"
+			PageTranslationProvider.OPENROUTER -> "google/gemini-nano-banana-2.1"
 			PageTranslationProvider.OPENAI -> "gpt-image-1"
 			PageTranslationProvider.MIT_SERVER -> ""
 		}

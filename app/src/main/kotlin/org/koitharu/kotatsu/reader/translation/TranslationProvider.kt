@@ -210,18 +210,28 @@ class GeminiProvider(
 }
 
 /**
- * OpenRouter dedicated Image API (https://openrouter.ai/api/v1/images).
- * Uses the user's existing OpenRouter key; image-to-image via input_references.
+ * OpenRouter via chat completions with image output modalities. The page image is
+ * passed as an image_url content part, which image-editing models (Gemini "nano banana"
+ * family) consume reliably, unlike the dedicated Image API's input_references.
  */
 class OpenRouterImageProvider(
 	private val okHttpClient: OkHttpClient,
 ) : TranslationProvider {
 
 	@Serializable
-	private data class Response(val data: List<OutputImage> = emptyList(), val error: ErrorBody? = null)
+	private data class Response(val choices: List<Choice> = emptyList(), val error: ErrorBody? = null)
 
 	@Serializable
-	private data class OutputImage(@SerialName("b64_json") val b64Json: String? = null)
+	private data class Choice(val message: Message? = null)
+
+	@Serializable
+	private data class Message(val images: List<MessageImage> = emptyList())
+
+	@Serializable
+	private data class MessageImage(@SerialName("image_url") val imageUrl: ImageUrl? = null)
+
+	@Serializable
+	private data class ImageUrl(val url: String? = null)
 
 	@Serializable
 	private data class ErrorBody(val message: String? = null)
@@ -237,12 +247,19 @@ class OpenRouterImageProvider(
 			val payload = json.encodeToString(
 				RequestPayload(
 					model = settings.model,
-					prompt = translationPrompt(settings.targetLanguage),
-					inputReferences = listOf(ReferencePayload(imageUrl = ImageRefPayload(url = dataUrl(sourceImage)))),
+					modalities = listOf("image", "text"),
+					messages = listOf(
+						MessagePayload(
+							content = listOf(
+								ContentPart(type = "text", text = translationPrompt(settings.targetLanguage)),
+								ContentPart(type = "image_url", imageUrl = ImageRefPayload(url = dataUrl(sourceImage))),
+							),
+						),
+					),
 				),
 			)
 			val request = Request.Builder()
-				.url("https://openrouter.ai/api/v1/images")
+				.url("https://openrouter.ai/api/v1/chat/completions")
 				.header("Authorization", "Bearer ${settings.apiKey}")
 				.post(payload.toRequestBody("application/json".toMediaType()))
 				.build()
@@ -252,20 +269,28 @@ class OpenRouterImageProvider(
 				if (!response.isSuccessful) {
 					throw errorByCode(response.code, parsed?.error?.message.orEmpty())
 				}
-				parsed?.data?.firstOrNull()?.b64Json?.let { Base64.decode(it, Base64.DEFAULT) }
-					?: throw IOException("OpenRouter returned no image, check the model name (an image model is required)")
+				val dataUrl = parsed?.choices?.firstOrNull()?.message?.images
+					?.firstOrNull()?.imageUrl?.url
+				val base64 = dataUrl?.substringAfter("base64,", missingDelimiterValue = "").orEmpty()
+				if (base64.isNotEmpty()) {
+					return@withContext Base64.decode(base64, Base64.DEFAULT)
+				}
+				throw IOException("OpenRouter returned no image, check the model name (an image editing model is required)")
 			}
 		}
 
 	@Serializable
 	private data class RequestPayload(
 		val model: String,
-		val prompt: String,
-		val inputReferences: List<ReferencePayload>,
+		val modalities: List<String>,
+		val messages: List<MessagePayload>,
 	)
 
 	@Serializable
-	private data class ReferencePayload(val type: String = "image_url", val imageUrl: ImageRefPayload)
+	private data class MessagePayload(val role: String = "user", val content: List<ContentPart>)
+
+	@Serializable
+	private data class ContentPart(val type: String, val text: String? = null, val imageUrl: ImageRefPayload? = null)
 
 	@Serializable
 	private data class ImageRefPayload(val url: String)
