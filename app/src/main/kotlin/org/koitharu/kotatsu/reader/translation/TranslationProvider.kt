@@ -250,6 +250,7 @@ class OpenRouterImageProvider(
 					modalities = listOf("image", "text"),
 					messages = listOf(
 						MessagePayload(
+							role = "user",
 							content = listOf(
 								ContentPart(type = "text", text = translationPrompt(settings.targetLanguage)),
 								ContentPart(type = "image_url", imageUrl = ImageRefPayload(url = dataUrl(sourceImage))),
@@ -287,10 +288,14 @@ class OpenRouterImageProvider(
 	)
 
 	@Serializable
-	private data class MessagePayload(val role: String = "user", val content: List<ContentPart>)
+	private data class MessagePayload(val role: String, val content: List<ContentPart>)
 
 	@Serializable
-	private data class ContentPart(val type: String, val text: String? = null, val imageUrl: ImageRefPayload? = null)
+	private data class ContentPart(
+		val type: String,
+		val text: String? = null,
+		@SerialName("image_url") val imageUrl: ImageRefPayload? = null,
+	)
 
 	@Serializable
 	private data class ImageRefPayload(val url: String)
