@@ -92,7 +92,7 @@ class PageTranslationSettings @Inject constructor(
 			PageTranslationProvider.GEMINI -> "gemini-3.1-flash-image"
 			PageTranslationProvider.OPENROUTER -> "google/gemini-nano-banana-2.1"
 			PageTranslationProvider.OPENAI -> "gpt-image-1"
-			PageTranslationProvider.MIT_SERVER -> ""
+			PageTranslationProvider.MIT_SERVER -> "m2m100"
 		}
 	}
 }

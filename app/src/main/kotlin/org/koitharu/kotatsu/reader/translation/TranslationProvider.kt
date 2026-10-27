@@ -364,7 +364,11 @@ class MitServerProvider(
 			if (base.isBlank()) {
 				throw IOException("Translation server URL is not set")
 			}
-			val config = """{"translator":{"target_lang":"${settings.targetLanguage.uppercase()}"}}"""
+			// The server's own default translator is sugoi (Japanese→English only);
+			// send the engine explicitly, it is taken from the "Model / translator"
+			// preference (m2m100 covers Ukrainian offline, no API key needed).
+			val engine = settings.model.ifBlank { "m2m100" }
+			val config = """{"translator":{"translator":"$engine","target_lang":"${settings.targetLanguage.uppercase()}"}}"""
 			val body = MultipartBody.Builder()
 				.setType(MultipartBody.FORM)
 				.addFormDataPart(

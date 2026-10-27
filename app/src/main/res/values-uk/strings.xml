@@ -930,7 +930,7 @@
     <string name="page_translation_source_language">Мова оригіналу</string>
     <string name="page_translation_source_language_summary">Код ISO 639-1 або auto для автовизначення</string>
     <string name="page_translation_model">Модель / перекладач</string>
-    <string name="page_translation_model_summary">grok, gemini, deepseek, kimi, chatgpt, claude для ImageTranslate.AI; назва image-моделі Gemini (напр. gemini-2.5-flash-image) для Gemini; slug image-моделі (напр. google/gemini-nano-banana-2.1) для OpenRouter; модель images/edits (напр. gpt-image-1) для OpenAI</string>
+    <string name="page_translation_model_summary">grok, gemini, deepseek, kimi, chatgpt, claude для ImageTranslate.AI; назва image-моделі Gemini (напр. gemini-2.5-flash-image) для Gemini; slug image-моделі (напр. google/gemini-nano-banana-2.1) для OpenRouter; модель images/edits (напр. gpt-image-1) для OpenAI; движок перекладача для сервера manga-image-translator (напр. m2m100, nllb, sugoi)</string>
     <string name="page_translation_server_url">URL сервера</string>
     <string name="page_translation_server_url_summary">Базова URL сумісного з manga-image-translator сервера, використовується коли провайдер — він (напр. http://192.168.8.205:8001)</string>
 </resources>
