@@ -54,10 +54,13 @@ class PageTranslationSettings @Inject constructor(
 		get() {
 			val stored = prefs.getString(KEY_MODEL, null)?.takeUnless { it.isNullOrBlank() }
 				?: return defaultModel(provider)
-			// legacy slug renamed upstream; treat it as unset for OpenRouter
-			if (provider == PageTranslationProvider.OPENROUTER && stored == LEGACY_OPENROUTER_MODEL) {
-				return defaultModel(provider)
+			// slugs renamed/retired upstream; treat them as unset for the affected provider
+			val legacy = when (provider) {
+				PageTranslationProvider.OPENROUTER -> LEGACY_OPENROUTER_MODEL
+				PageTranslationProvider.GEMINI -> LEGACY_GEMINI_MODEL
+				else -> null
 			}
+			if (stored == legacy) return defaultModel(provider)
 			return stored
 		}
 		set(value) = prefs.edit().putString(KEY_MODEL, value.trim()).apply()
@@ -82,10 +85,11 @@ class PageTranslationSettings @Inject constructor(
 		const val KEY_MODEL = "page_translation_model"
 		const val KEY_SERVER_URL = "page_translation_server_url"
 		const val LEGACY_OPENROUTER_MODEL = "google/gemini-2.5-flash-image"
+		const val LEGACY_GEMINI_MODEL = "gemini-2.5-flash-image"
 
 		fun defaultModel(provider: PageTranslationProvider) = when (provider) {
 			PageTranslationProvider.IMAGETRANSLATE -> "grok"
-			PageTranslationProvider.GEMINI -> "gemini-2.5-flash-image"
+			PageTranslationProvider.GEMINI -> "gemini-3.1-flash-image"
 			PageTranslationProvider.OPENROUTER -> "google/gemini-nano-banana-2.1"
 			PageTranslationProvider.OPENAI -> "gpt-image-1"
 			PageTranslationProvider.MIT_SERVER -> ""
