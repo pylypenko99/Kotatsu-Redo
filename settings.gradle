@@ -30,3 +30,8 @@ dependencyResolutionManagement {
 
 include ':app'
 rootProject.name = "Kotatsu"
+includeBuild('/home/andriy/Projects/kotatsu-redo-build/parsers-wt') {
+	dependencySubstitution {
+		substitute(module('com.github.clquwu:kotatsu-parsers-redo')).using(project(':'))
+	}
+}
