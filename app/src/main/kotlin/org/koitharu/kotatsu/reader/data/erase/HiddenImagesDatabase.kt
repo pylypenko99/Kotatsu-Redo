@@ -167,31 +167,9 @@ abstract class HiddenImagesDao {
 @Database(
 	entities = [HiddenImageEntity::class, HiddenPageEntity::class, PageScanEntity::class],
 	version = 7,
-	autoMigrations = [
-		AutoMigration(from = 1, to = 2),
-		AutoMigration(from = 2, to = 3),
-		AutoMigration(from = 3, to = 4),
-		AutoMigration(from = 4, to = 5, spec = ForgetUnreliableMatches::class),
-		AutoMigration(from = 5, to = 6),
-		AutoMigration(from = 6, to = 7),
-	],
 )
 abstract class HiddenImagesDatabase : RoomDatabase() {
 	abstract fun getDao(): HiddenImagesDao
-}
-
-/**
- * Builds before this one could mistake ordinary pages for a cut off image, and what they concluded was saved:
- * pages hidden whole, and strips removed from their neighbours. All of that is worked out from the images the
- * reader erased, which stay, so it is dropped and found again by a matcher that gets it right.
- */
-class ForgetUnreliableMatches : AutoMigrationSpec {
-
-	override fun onPostMigrate(db: SupportSQLiteDatabase) {
-		db.execSQL("DELETE FROM hidden_pages")
-		db.execSQL("DELETE FROM hidden_images WHERE parent_id IS NOT NULL")
-		db.execSQL("DELETE FROM page_scans")
-	}
 }
 
 @Module
@@ -202,5 +180,9 @@ object HiddenImagesModule {
 	@Singleton
 	fun provideHiddenImagesDatabase(@ApplicationContext context: Context): HiddenImagesDatabase = Room
 		.databaseBuilder(context, HiddenImagesDatabase::class.java, "kotatsu-hidden-images-db")
+		// Historical schemas 1..6 were never committed, so auto-migrations cannot be generated.
+		// Without a path from those versions the database is rebuilt; erased-image records reappear
+		// and can be hidden again.
+		.fallbackToDestructiveMigration(dropAllTables = false)
 		.build()
 }

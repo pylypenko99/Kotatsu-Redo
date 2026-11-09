@@ -8,9 +8,9 @@ biometric = "1.4.0-alpha04"
 coil = "3.4.0"
 collections = "1.5.0"
 composeBom = "2024.12.01"
-# https://github.com/google/conscrypt/issues/1268
-#noinspection NewerVersionAvailable,GradleDependency - 2.5.3 cause crashes
-conscrypt = "2.5.2"
+# 16 KB page-size support: 2.5.2 ships 4 KB-aligned ELF; 2.9.0 is 16 KB-aligned.
+# Upstream pinned 2.5.2 because 2.5.3 crashed; 2.9.0 verified at runtime on this build.
+conscrypt = "2.9.0"
 constraintlayout = "2.2.1"
 coreKtx = "1.17.0"
 coroutines = "1.10.2"

@@ -106,6 +106,10 @@ android {
 		compose true
 	}
 	packagingOptions {
+		jniLibs {
+			// Store .so uncompressed and 16 KB page-aligned for 16 KB devices.
+			useLegacyPackaging = false
+		}
 		resources {
 			excludes += [
 				'META-INF/README.md',
